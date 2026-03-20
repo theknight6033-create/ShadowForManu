@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <p>Loading destination...</p>
+
+    <script>
+        // Fetch the URL from URL.txt (same directory)
+        fetch('URL.txt')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to load URL.txt: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                // Trim whitespace and newlines
+                let url = text.trim();
+                // Basic validation: must start with http:// or https://
+                if (!url.match(/^https?:\/\//i)) {
+                    throw new Error('Invalid URL format in URL.txt');
+                }
+                // Redirect without leaving history
+                window.location.replace(url);
+            })
+            .catch(error => {
+                // Show error and a fallback link
+                document.body.innerHTML = `
+                    <p class="error">Error: ${error.message}</p>
+                    <p>Please check that <code>URL.txt</code> exists and contains a valid URL (starting with http:// or https://).</p>
+                    <p><a href="#" id="fallback">Click here to try again</a></p>
+                `;
+                document.getElementById('fallback').addEventListener('click', () => {
+                    window.location.reload(); // Retry fetch
+                });
+            });
+    </script>
+</body>
+</html>
